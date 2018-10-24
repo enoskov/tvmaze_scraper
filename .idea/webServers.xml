@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="01b10cbb-b2bf-4f4b-b10c-641daa30d6aa" name="msg2-frame.frame.ooma.com" url="http://msg2-frame.frame.ooma.com">
+        <fileTransfer host="msg2-frame.frame.ooma.com" port="22" rootFolder="/var/local/enoskov/tvmaze_scraper" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+      <webServer id="9ea8ea65-058f-4e62-95df-8d2e5ed027d2" name="ec2-18-224-94-56.us-east-2.compute.amazonaws.com" url="http://ec2-18-224-94-56.us-east-2.compute.amazonaws.com">
+        <fileTransfer host="ec2-18-224-94-56.us-east-2.compute.amazonaws.com" port="22" privateKey="C:\Users\enoskov\Desktop\enoskov_aws.ppk" rootFolder="/var/local/enoskov/tvmaze_scraper" accessType="SFTP" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

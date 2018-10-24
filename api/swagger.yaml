@@ -1,0 +1,247 @@
+---
+swagger: "2.0"
+info:
+  description: "API for TVMaze scraper"
+  version: "1.0.0"
+  title: "TV Maze scraper API"
+  contact:
+    email: "evgeniy.a.noskov@gmail.com"
+host: "msg2-frame.frame.ooma.com:8020"
+basePath: "/scraper"
+tags:
+- name: "scraper"
+  description: "Everything about TV shows and cast"
+schemes:
+- "http"
+paths:
+  /v1/cast:
+    get:
+      tags:
+      - "cast"
+      summary: "Get a requested page of TV shows cast"
+      operationId: "getCast"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "start_id"
+        in: "query"
+        description: "Specifies the starting id for tv shows to return cast for for\
+          \ the next page. If not specified, start with the lowest id in db (initial\
+          \ page)."
+        required: false
+        type: "integer"
+      - name: "page_size"
+        in: "query"
+        description: "Specifies the desired size of page in range [1..500]"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/inline_response_200"
+        400:
+          description: "Invalid request, parameters, etc."
+          schema:
+            $ref: "#/definitions/inline_response_400"
+        500:
+          description: "Exception, database is not accessible,etc."
+          schema:
+            $ref: "#/definitions/inline_response_400"
+      x-swagger-router-controller: "Cast"
+definitions:
+  CastModel:
+    type: "object"
+    properties:
+      next_start_key:
+        type: "integer"
+        description: "Next show id for the next request. Null if it was the last page."
+      shows:
+        type: "array"
+        description: "Array cast for this page"
+        items:
+          $ref: "#/definitions/inline_response_200_shows"
+  ShowArray:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        description: "TV show id"
+      name:
+        type: "string"
+        description: "TV show name"
+      cast:
+        type: "array"
+        description: "TV show cast"
+        items:
+          $ref: "#/definitions/inline_response_200_cast"
+  CastArray:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        description: "Actor id"
+      name:
+        type: "string"
+        description: "Actor name"
+      birthday:
+        type: "array"
+        description: "Actor birthday. Response is sorted by this field."
+        items:
+          $ref: "#/definitions/CastArray"
+    example:
+      birthday:
+      - null
+      - null
+      name: "name"
+      id: 5
+  ErrorModel:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+  inline_response_200_cast:
+    properties:
+      id:
+        type: "integer"
+        description: "Actor id"
+      name:
+        type: "string"
+        description: "Actor name"
+      birthday:
+        type: "array"
+        description: "Actor birthday. Response is sorted by this field."
+        items:
+          $ref: "#/definitions/CastArray"
+    example:
+      birthday:
+      - birthday:
+        - null
+        - null
+        name: "name"
+        id: 5
+      - birthday:
+        - null
+        - null
+        name: "name"
+        id: 5
+      name: "name"
+      id: 1
+  inline_response_200_shows:
+    properties:
+      id:
+        type: "integer"
+        description: "TV show id"
+      name:
+        type: "string"
+        description: "TV show name"
+      cast:
+        type: "array"
+        description: "TV show cast"
+        items:
+          $ref: "#/definitions/inline_response_200_cast"
+    example:
+      cast:
+      - birthday:
+        - birthday:
+          - null
+          - null
+          name: "name"
+          id: 5
+        - birthday:
+          - null
+          - null
+          name: "name"
+          id: 5
+        name: "name"
+        id: 1
+      - birthday:
+        - birthday:
+          - null
+          - null
+          name: "name"
+          id: 5
+        - birthday:
+          - null
+          - null
+          name: "name"
+          id: 5
+        name: "name"
+        id: 1
+      name: "name"
+      id: 6
+  inline_response_200:
+    properties:
+      next_start_key:
+        type: "integer"
+        description: "Next show id for the next request. Null if it was the last page."
+      shows:
+        type: "array"
+        description: "Array cast for this page"
+        items:
+          $ref: "#/definitions/inline_response_200_shows"
+    example:
+      shows:
+      - cast:
+        - birthday:
+          - birthday:
+            - null
+            - null
+            name: "name"
+            id: 5
+          - birthday:
+            - null
+            - null
+            name: "name"
+            id: 5
+          name: "name"
+          id: 1
+        - birthday:
+          - birthday:
+            - null
+            - null
+            name: "name"
+            id: 5
+          - birthday:
+            - null
+            - null
+            name: "name"
+            id: 5
+          name: "name"
+          id: 1
+        name: "name"
+        id: 6
+      - cast:
+        - birthday:
+          - birthday:
+            - null
+            - null
+            name: "name"
+            id: 5
+          - birthday:
+            - null
+            - null
+            name: "name"
+            id: 5
+          name: "name"
+          id: 1
+        - birthday:
+          - birthday:
+            - null
+            - null
+            name: "name"
+            id: 5
+          - birthday:
+            - null
+            - null
+            name: "name"
+            id: 5
+          name: "name"
+          id: 1
+        name: "name"
+        id: 6
+      next_start_key: 0
+  inline_response_400:
+    properties:
+      error:
+        type: "string"

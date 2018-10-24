@@ -1,0 +1,51 @@
+{
+  "name": "tvmaze_scraper",
+  "version": "1.0.0",
+  "description": "Test assignment",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha --exit ./test/index.js",
+    "unit-test": "./node_modules/mocha/bin/mocha --exit ./test/unit_tests/index.js",
+    "test-coverage": "nyc --reporter=text ./node_modules/mocha/bin/mocha --exit ./test/index.js",
+    "forever": "./node_modules/forever/bin/forever start --minUptime 1000 --spinSleepTime 1000 -s index.js",
+    "stop": "./node_modules/forever/bin/forever stop index.js",
+    "restart": "./node_modules/forever/bin/forever stop index.js;./node_modules/forever/bin/forever start --minUptime 1000 --spinSleepTime 1000 -s index.js",
+    "app": "node index.js",
+    "app_api": "./node_modules/forever/bin/forever start --minUptime 1000 --spinSleepTime 1000 -s app_api.js",
+    "app_scraper": "./node_modules/forever/bin/forever start --minUptime 1000 --spinSleepTime 1000 -s app_scraper.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enoskov/tvmaze_scraper.git"
+  },
+  "keywords": [
+    "tvmaze"
+  ],
+  "author": "Evgeny Noskov",
+  "license": "ISC",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/enoskov/tvmaze_scraper/issues"
+  },
+  "homepage": "https://github.com/enoskov/tvmaze_scraper#readme",
+  "dependencies": {
+    "ain2": "^2.0.0",
+    "bottleneck": "^2.12.1",
+    "connect": "^3.6.6",
+    "cors": "2.8.4",
+    "forever": "^0.15.3",
+    "js-yaml": "^3.12.0",
+    "log4js": "^3.0.6",
+    "mongoose": "^5.3.4",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
+    "swagger-tools": "^0.10.1"
+  },
+  "devDependencies": {
+    "chai": "3.5.0",
+    "mocha": "4.0.1",
+    "nyc": "13.0.1",
+    "rewire": "4.0.1",
+    "sinon": "4.2.1"
+  }
+}

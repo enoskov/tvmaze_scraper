@@ -1,0 +1,26 @@
+#!/bin/bash
+
+export TVMAZE_DB_URL="mongodb://scraper:tvmaze@snp1-frame.frame.ooma.com:27017,snp2-frame.frame.ooma.com:27017,snp3-frame.frame.ooma.com:27017/scraper?replicaSet=messagingAndPush"
+export TVMAZE_API_PORT=8020
+export TVMAZE_API_MAX_PAGE_SIZE=50
+export TVMAZE_API_MIN_PAGE_SIZE=0
+export TVMAZE_LOG_FILENAME_ENABLED=true
+export TVMAZE_LOG_FILENAME="/var/log/tvmaze_scraper.log"
+export TVMAZE_LOG_LEVEL=DEBUG
+export TVMAZE_SYSLOG_ENABLED=false
+export TVMAZE_SHOWS_MAX_CONCURRENT=1
+export TVMAZE_SHOWS_MIN_TIME=5000
+export TVMAZE_CAST_MAX_CONCURRENT=4
+export TVMAZE_CAST_MIN_TIME=300
+export TVMAZE_CAST_RESERVOIR=1000
+export TVMAZE_CAST_RESERVOIR_REFRESH=1000
+export TVMAZE_CAST_RESERVOIR_REFRESH_TIME=(60 * 1000)
+export TVMAZE_DOWN_RETRY_TIMEOUT=(60 * 1000)
+export TVMAZE_DB_RETRY_TIMEOUT=(60 * 1000)
+export TVMAZE_GRACEFUL_SHUTDOWN_TIMEOUT=(33 * 1000)
+export TVMAZE_SHOWS_URL="http://api.tvmaze.com/shows"
+export TVMAZE_CAST_NODE_ENV=development
+
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "$parent_path"
+"`dirname $0`"/../node_modules/forever/bin/forever start --minUptime 1000 --spinSleepTime 1000 -s "`dirname $0`"/../app_api.js

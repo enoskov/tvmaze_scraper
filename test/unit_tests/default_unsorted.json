@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Game of Thrones",
+    "cast": [
+      {
+        "id": 7,
+        "name": "Mike Vogel",
+        "birthday": "1979-07-17"
+      },
+      {
+        "id": 9,
+        "name": "Dean Norris",
+        "birthday": "1963-04-08"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Big Bang Theory",
+    "cast": [
+      {
+        "id": 6,
+        "name": "Michael Emerson",
+        "birthday": "1950-01-01"
+      }
+    ]
+  }
+]
