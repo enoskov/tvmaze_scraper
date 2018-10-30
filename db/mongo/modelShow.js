@@ -47,7 +47,7 @@ const factory = (dependencies = {}) => {
         logger.debug("Saving show in db with data:" + JSON.stringify(show));
         if (!$connection.isDbConnected()) {
             logger.warn("Trying to access db while it's not connected");
-            return new Error("db not connected");
+            return new Error("db error");
         }
         if (Show === null) Show = $connection.getDB().model('show', showSchema, 'shows');
         try {
@@ -61,7 +61,7 @@ const factory = (dependencies = {}) => {
         }
         catch (err) {
             logger.info("Error while saving show to mongoDB " + err);
-            return new Error("mongoDB error");
+            return new Error("db error");
         }
     };
 
