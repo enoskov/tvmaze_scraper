@@ -6,7 +6,7 @@ const db = require('./db');
 const scraper = require("./scraper/app.js");
 
 
-const factory = (dependencies = {}) => {
+const factory = async (dependencies = {}) => {
     const {
         $db = db(),
         $scraper = scraper(),
@@ -17,8 +17,13 @@ const factory = (dependencies = {}) => {
     const logger = $getLogger($config.appName + '.index ['+process.pid+']');
 
     logger.info("Starting the main script..");
-    $db.connect();
-    $scraper.start();
+    try {
+        await $db.connect();
+        await $scraper.start();
+    }
+    catch (err) {
+        logger.fatal("Error while starting the main script");
+    }
 
     /** MODULE EXPORT **/
     return {

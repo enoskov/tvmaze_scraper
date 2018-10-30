@@ -6,7 +6,7 @@ const db = require('./db');
 const swagger = require("./api/app.js");
 
 
-const factory = (dependencies = {}) => {
+const factory = async (dependencies = {}) => {
     const {
         $db = db(),
         $swagger = swagger(),
@@ -17,8 +17,13 @@ const factory = (dependencies = {}) => {
     const logger = $getLogger($config.appName + '.index ['+process.pid+']');
 
     logger.info("Starting the main script..");
-    $db.connect();
-    $swagger.start();
+    try {
+        await $db.connect();
+        $swagger.start(); /* sync */
+    }
+    catch (err) {
+        logger.fatal("Error while starting the main script");
+    }
 
     /** MODULE EXPORT **/
     return {

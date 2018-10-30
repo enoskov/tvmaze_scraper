@@ -2,13 +2,6 @@
 <project version="4">
   <component name="PublishConfigData" serverName="msg2-frame.frame.ooma.com">
     <serverData>
-      <paths name="ec2-18-224-94-56.us-east-2.compute.amazonaws.com">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="msg2-frame.frame.ooma.com">
         <serverdata>
           <mappings>

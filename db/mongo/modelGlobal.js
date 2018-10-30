@@ -40,23 +40,21 @@ const factory = (dependencies = {}) => {
      * @return {Promise} Promise object represents saved globals in db
      */
     let saveGlobalState = async function (globals) {
-        return new Promise(function (resolve, reject) {
-            logger.debug("Updating global state with data:" + JSON.stringify(globals));
-            if (!$connection.isDbConnected()) {
-                logger.warn("Trying to access db while it's not connected");
-                return reject(new Error("db not connected"));
-            }
-            if (Global === null) Global = $connection.getDB().model('global', globalSchema, 'global');
-            Global.updateOne({}, globals, {upsert: true})
-                .then((response) => {
-                    logger.info("Global state successfully updated in mongoDB to data:" + JSON.stringify(response));
-                    resolve(globals);
-                })
-                .catch((err) => {
-                    logger.info("Error while updating global state in mongoDB " + err);
-                    reject(new Error("mongoDB error"));
-                });
-        });
+        logger.debug("Updating global state with data:" + JSON.stringify(globals));
+        if (!$connection.isDbConnected()) {
+            logger.warn("Trying to access db while it's not connected");
+            return new Error("db not connected");
+        }
+        if (Global === null) Global = $connection.getDB().model('global', globalSchema, 'global');
+        try {
+            let response = await Global.updateOne({}, globals, {upsert: true});
+            logger.info("Global state successfully updated in mongoDB to data:" + JSON.stringify(response));
+            return globals;
+        }
+        catch (err) {
+            logger.info("Error while updating global state in mongoDB " + err);
+            return new Error("mongoDB error");
+        }
     };
 
     /**
@@ -66,30 +64,27 @@ const factory = (dependencies = {}) => {
      * @return {Promise} Promise object which represents the global state read from db
      */
     let readGlobalState = async function () {
-        return new Promise(function (resolve, reject) {
-            logger.debug("Reading global state from mongoDB");
-            if (!$connection.isDbConnected()) {
-                logger.warn("Trying to access db while it's not connected");
-                return reject(new Error("db not connected"));
+        logger.debug("Reading global state from mongoDB");
+        if (!$connection.isDbConnected()) {
+            logger.warn("Trying to access db while it's not connected");
+            return new Error("db not connected");
+        }
+        if (Global === null) Global = $connection.getDB().model('global', globalSchema, 'global');
+        try {
+            let response = await Global.findOne({});
+            logger.info("Global state successfully read from mongoDB:" + JSON.stringify(response));
+            if (response !== null) {
+                return {
+                    lastProcessedShowsPage: response.lastProcessedShowsPage,
+                    lastProcessedShowId: response.lastProcessedShowId
+                };
+            } else {
+                return null;
             }
-            if (Global === null) Global = $connection.getDB().model('global', globalSchema, 'global');
-            Global.findOne({})
-                .then((response) => {
-                    logger.info("Global state successfully read from mongoDB:" + JSON.stringify(response));
-                    if (response !== null) {
-                        resolve({
-                            lastProcessedShowsPage: response.lastProcessedShowsPage,
-                            lastProcessedShowId: response.lastProcessedShowId
-                        });
-                    } else {
-                        resolve(null);
-                    }
-                })
-                .catch((err) => {
-                    logger.info("Error while reading global state from mongoDB");
-                    reject(new Error("mongoDB error"));
-                });
-        });
+        } catch(err) {
+            logger.info("Error while reading global state from mongoDB");
+            return new Error("mongoDB error");
+        }
     };
 
     /** MODULE EXPORT **/

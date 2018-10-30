@@ -47,8 +47,9 @@ const factory = (dependencies = {}) => {
      * @desc Establishes a persistent connection to MongoDB. Initializes inner db object which is used for further
      * operations.
      */
-    let connect = function () {
-        db = $mongoose.createConnection(dbUrl, connectionOptions);
+    let connect = async function () {
+        // No need to `await` on this, mongoose 4 handles connection buffering internally
+        db = await $mongoose.createConnection(dbUrl, connectionOptions);
 
         db.on('connecting', function () {
             logger.info('Connecting to MongoDB at URL: ' + dbUrl);

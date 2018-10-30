@@ -66,39 +66,34 @@ const factory = (dependencies = {}) => {
     let backgroundTaskState = bottleneckStatus.IDLE;
 
     async function readGlobalState() {
-        return new Promise(function (resolve, reject) {
-            logger.debug("Reading global state from db..");
-            $db.readGlobalState()
-                .then((state) => {
-                    if (state === null) {
-                        // init to 0
-                        resolve({
-                            lastProcessedShowsPage: 0,
-                            lastProcessedShowId: 0
-                        });
-                    } else {
-                        resolve(state);
-                    }
-                })
-                .catch((err) => {
-                    logger.error("Error while reading global state " + err);
-                    reject("DB error");
-                });
-        });
+        logger.debug("Reading global state from db..");
+        try {
+            let state = await $db.readGlobalState();
+            if (state === null) {
+                // init to 0
+                return {
+                    lastProcessedShowsPage: 0,
+                    lastProcessedShowId: 0
+                };
+            } else {
+                return state;
+            }
+        }
+        catch (err) {
+            logger.error("Error while reading global state " + err);
+            process.exit(1);
+        }
     }
 
     async function dumpGlobalState() {
-        return new Promise(function (resolve, reject) {
-            logger.debug("Writing global state to db..");
-            $db.saveGlobalState(globalState)
-                .then((saved) => {
-                    resolve(true);
-                })
-                .catch((err) => {
-                    logger.error("Error while writing global state " + err);
-                    reject("DB error");
-                });
-        });
+        logger.debug("Writing global state to db..");
+        try {
+            await $db.saveGlobalState(globalState);
+        }
+        catch(err) {
+            logger.error("Error while writing global state " + err);
+            return new Error("DB error");
+        }
     }
 
     function getCastInfoTask(showsInfo) {
@@ -205,7 +200,7 @@ const factory = (dependencies = {}) => {
         });
     }
 
-    function checkShowsUpdateTask() {
+    let checkShowsUpdateTask = function() {
         /** background task which runs forever **/
         showsLimiter.schedule(() => $rp({
             uri: $config.tvmazeUrl + "?page=" + globalState.lastProcessedShowsPage,
@@ -232,11 +227,11 @@ const factory = (dependencies = {}) => {
                         && (castLimiter.empty())
                         && (err.statusCode === 404)) {
                         dumpGlobalState()
-                            .then((resp) => {
+                            .then(resp => {
                                 logger.info("Background task now in MONITORING state");
                                 backgroundTaskState = bottleneckStatus.MONITORING;
                             })
-                            .catch((err) => {
+                            .catch(err => {
                                 logger.error("Error while dumping global state " + err);
                             });
                     } else if (backgroundTaskState === bottleneckStatus.MONITORING) {
@@ -247,9 +242,9 @@ const factory = (dependencies = {}) => {
                     logger.error("Error code %s while GET shows page %d", err.statusCode, globalState.lastProcessedShowsPage);
                 }
             });
-    }
+    };
 
-    let start = async function () {
+    let start = async function() {
         try {
             globalState = await readGlobalState();
             // start task on background to check whether new shows have been added on timely manner

@@ -41,30 +41,28 @@ const factory = (dependencies = {}) => {
      * @function module:mongo.saveShow
      * @desc Save show in mongoDB.
      * @param {object} show - Show scraped from TVMaze
-     * @return {Promise} Promise object with true if successful. Rejected promise in case of failure.
+     * @return {Promise} Returns true if successful. Return new Error() in case of failure.
      */
     let saveShow = async function (show) {
-        return new Promise(function (resolve, reject) {
-            logger.debug("Saving show in db with data:" + JSON.stringify(show));
-            if (!$connection.isDbConnected()) {
-                logger.warn("Trying to access db while it's not connected");
-                return reject(new Error("db not connected"));
+        logger.debug("Saving show in db with data:" + JSON.stringify(show));
+        if (!$connection.isDbConnected()) {
+            logger.warn("Trying to access db while it's not connected");
+            return new Error("db not connected");
+        }
+        if (Show === null) Show = $connection.getDB().model('show', showSchema, 'shows');
+        try {
+            let response = await Show.findOneAndUpdate({id: show.id}, show, {upsert: true});
+            if (response === null) {
+                logger.info("Show saved in db successfully:" + JSON.stringify(response));
+            } else {
+                logger.warn("Show updated in db successfully. It should not normally happen. Show:" + JSON.stringify(response));
             }
-            if (Show === null) Show = $connection.getDB().model('show', showSchema, 'shows');
-            Show.findOneAndUpdate({id: show.id}, show, {upsert: true})
-                .then((response) => {
-                    if (response === null) {
-                        logger.info("Show saved in db successfully:" + JSON.stringify(response));
-                    } else {
-                        logger.warn("Show updated in db successfully. It should not normally happen. Show:" + JSON.stringify(response));
-                    }
-                    resolve(true);
-                })
-                .catch((err) => {
-                    logger.info("Error while saving show to mongoDB " + err);
-                    reject(new Error("mongoDB error"));
-                });
-        });
+            return true;
+        }
+        catch (err) {
+            logger.info("Error while saving show to mongoDB " + err);
+            return new Error("mongoDB error");
+        }
     };
 
     /**
@@ -76,45 +74,41 @@ const factory = (dependencies = {}) => {
      * @return {Promise} Promise object which resolves to a page of shows. Rejects in case of error.
      */
     let getShowsPage = async function (startId, pageSize) {
-        return new Promise(function (resolve, reject) {
-            logger.debug("Getting shows page starting %s with size %d", startId, pageSize);
-            if (!$connection.isDbConnected()) {
-                logger.warn("Trying to access db while it's not connected");
-                return reject(new Error("db not connected"));
-            }
-            if (Show === null) Show = $connection.getDB().model('show', showSchema, 'shows');
-            let findConditions = {};
-            if (typeof startId === 'number') {
-                findConditions = {id: {$gte: startId}};
-            }
-            Show.find(findConditions).sort({id: 1}).limit(pageSize)
-                .then((response) => {
-                    if (!Array.isArray(response)) {
-                        logger.error("Got nothing for page request. Oops.");
-                        reject("unexpected result for get page request");
-                    } else {
-                        logger.debug("Got the following number of shows: %d", response.length);
-                        response = response.map((item) => {
+        logger.debug("Getting shows page starting %s with size %d", startId, pageSize);
+        if (!$connection.isDbConnected()) {
+            logger.warn("Trying to access db while it's not connected");
+            return new Error("db not connected");
+        }
+        if (Show === null) Show = $connection.getDB().model('show', showSchema, 'shows');
+        let findConditions = {};
+        if (typeof startId === 'number') findConditions = {id: {$gte: startId}};
+        try {
+            let response = await Show.find(findConditions).sort({id: 1}).limit(pageSize);
+            if (!Array.isArray(response)) {
+                logger.error("Got nothing for page request. Oops.");
+                return new Error("Unexpected result for get page request");
+            } else {
+                logger.debug("Got the following number of shows: %d", response.length);
+                response = response.map((item) => {
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        cast: item.cast.map((item) => {
                             return {
                                 id: item.id,
                                 name: item.name,
-                                cast: item.cast.map((item) => {
-                                    return {
-                                        id: item.id,
-                                        name: item.name,
-                                        birthday: item.birthday
-                                    };
-                                })
+                                birthday: item.birthday
                             };
-                        });
-                        resolve(response);
-                    }
-                })
-                .catch((err) => {
-                    logger.info("Error while saving show to mongoDB " + err);
-                    reject(new Error("mongoDB error"));
+                        })
+                    };
                 });
-        });
+                return response;
+            }
+        }
+        catch (err) {
+            logger.info("Error while saving show to mongoDB " + err);
+            return new Error("mongoDB error");
+        }
     };
 
     /** MODULE EXPORT **/
